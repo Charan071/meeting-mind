@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --sidebar-width: 240px;
+    --cmdbar-height: 48px;
   }
 
   * {
@@ -15,14 +15,46 @@
     @apply bg-neutral-50 text-neutral-900;
   }
 
-  /* Verbatim quote style */
   .verbatim-quote {
-    @apply font-mono text-sm border-l-[3px] border-primary-600 pl-3 py-1 text-neutral-700 bg-neutral-100;
+    @apply font-mono text-[11px] border-l-[3px] border-primary-500 pl-3 py-1 text-neutral-500 bg-primary-50 rounded-r;
+  }
+}
+
+@layer components {
+  /* Teams-style sticky command bar */
+  .cmdbar {
+    @apply sticky top-0 z-10 h-12 bg-white border-b border-neutral-100
+           flex items-center gap-3 px-5 shrink-0;
+  }
+  .cmdbar-title {
+    @apply text-base font-semibold text-neutral-900 flex-1;
+  }
+
+  /* Fluent card */
+  .card {
+    @apply bg-white border border-neutral-100 rounded
+           shadow-[0_1px_4px_rgba(0,0,0,0.06)];
+  }
+
+  /* Meeting / list row with left status bar */
+  .list-row {
+    @apply flex items-center bg-white border-b border-neutral-50
+           hover:bg-neutral-50 transition-colors duration-fast cursor-pointer;
+  }
+  .list-row-bar {
+    @apply w-1 self-stretch shrink-0 rounded-l mr-3;
+  }
+
+  /* Action item priority left border */
+  .priority-card {
+    @apply border border-neutral-100 rounded bg-white p-3;
+    border-left-width: 3px;
   }
 }
 
 @layer utilities {
+  /* kept for backwards compat */
   .sidebar {
-    width: var(--sidebar-width);
+    width: 220px;
   }
 }
