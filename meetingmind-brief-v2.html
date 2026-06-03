@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MeetingMind — UI/UX Brief v2 (Teams-inspired)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50:  "#F4F4FC",
+          100: "#E3E3F3",
+          200: "#C5C6E8",
+          300: "#A7A8DC",
+          400: "#8788CF",
+          500: "#6264A7",
+          600: "#4F5196",
+          700: "#3D3E82",
+          800: "#2D2E6B",
+          900: "#1E1F52",
+        },
+        neutral: {
+          50:  "#F5F5F5",
+          100: "#E8E8E8",
+          200: "#D2D2D2",
+          300: "#ABABAB",
+          400: "#838383",
+          500: "#5C5C5C",
+          600: "#404040",
+          700: "#333333",
+          800: "#292929",
+          850: "#201F1E",
+          900: "#1A1A1A",
+        },
+      },
+      fontFamily: { sans: ["Segoe UI","system-ui","sans-serif"], mono: ["Cascadia Code","Consolas","monospace"] },
+      borderRadius: { sm:"2px", DEFAULT:"4px", md:"4px", lg:"6px", xl:"8px" },
+    }
+  }
+}
+</script>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #F5F5F5; }
+.badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.screen { background: white; border: 1px solid #E8E8E8; border-radius: 6px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+.browser-bar { background: #F5F5F5; border-bottom: 1px solid #E8E8E8; padding: 8px 12px; display: flex; align-items: center; gap: 10px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.url-bar { flex: 1; background: white; border: 1px solid #E8E8E8; border-radius: 4px; padding: 3px 10px; font-size: 11px; color: #838383; max-width: 280px; }
+
+/* Teams sidebar */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: #201F1E;
+  display: flex; flex-direction: column; height: 100%;
+}
+.sidebar-brand {
+  padding: 0 16px; height: 48px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-logo {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: #6264A7;
+  display: flex; align-items: center; justify-content: center;
+}
+.sidebar-nav { flex: 1; padding: 6px 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 4px;
+  font-size: 13px; cursor: pointer; color: #C8C6C4;
+  position: relative; border-left: 3px solid transparent;
+  transition: background 100ms;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+.nav-item.active {
+  background: rgba(99,100,167,0.25);
+  color: white; font-weight: 500;
+  border-left-color: #6264A7;
+}
+.sidebar-footer {
+  padding: 10px 12px; border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; gap: 10px;
+}
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #6264A7; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+
+/* Teams command bar */
+.cmdbar {
+  height: 48px; background: white;
+  border-bottom: 1px solid #E8E8E8;
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 12px;
+  flex-shrink: 0;
+}
+.cmdbar-title { font-size: 16px; font-weight: 600; color: #1A1A1A; flex: 1; }
+
+.screen-body { display: flex; height: 480px; }
+.screen-content { flex: 1; overflow-y: auto; background: #F5F5F5; display: flex; flex-direction: column; }
+.page-body { flex: 1; padding: 16px 20px; overflow-y: auto; }
+
+/* Fluent card */
+.card {
+  background: white; border: 1px solid #E8E8E8;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* Meeting row — left status bar */
+.meeting-row {
+  display: flex; align-items: center;
+  padding: 0 16px 0 0;
+  border-bottom: 1px solid #F5F5F5;
+  cursor: pointer; transition: background 80ms;
+  background: white;
+}
+.meeting-row:hover { background: #F5F5F5; }
+.meeting-row-bar { width: 4px; border-radius: 2px 0 0 2px; align-self: stretch; flex-shrink: 0; margin-right: 12px; }
+
+.verbatim {
+  font-family: "Cascadia Code", Consolas, monospace; font-size: 11px;
+  border-left: 3px solid #6264A7; padding: 4px 0 4px 10px;
+  background: #F4F4FC; color: #5C5C5C; border-radius: 0 2px 2px 0;
+}
+
+/* Toggle */
+.toggle { position: relative; display: inline-flex; width: 36px; height: 20px; align-items: center; border-radius: 9999px; cursor: pointer; }
+.toggle-thumb { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 150ms; }
+
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+.animate-ping { animation: ping 1s cubic-bezier(0,0,0.2,1) infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
+</style>
+</head>
+<body class="min-h-screen bg-neutral-50">
+
+<nav class="sticky top-0 z-50 bg-neutral-900 border-b border-neutral-700 px-4 py-2.5 flex items-center gap-3 overflow-x-auto">
+  <span class="text-white font-semibold text-sm shrink-0 pr-2">MeetingMind v2 Brief <span style="font-size:10px;color:#6264A7;font-weight:400">Teams-inspired</span></span>
+  <div id="nav-tabs" class="flex gap-1 flex-wrap"></div>
+</nav>
+
+<div class="max-w-5xl mx-auto px-6 py-10" id="content"></div>
+
+<script>
+const SECTIONS = ["Design Tokens","User Flow","Sign In","Dashboard","Meetings List","New Meeting Modal","Meeting Detail","Action Items","Team","Integrations","Calendar / Auto-Join","Components"];
+let active = "Design Tokens";
+
+function badge(label, cls) {
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function sidebar(activeHref) {
+  const nav = [
+    {label:"Meetings",href:"/meetings",icon:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`},
+    {label:"Action Items",href:"/action-items",icon:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`},
+    {label:"Team",href:"/team",icon:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`},
+    {label:"Integrations",href:"/settings",icon:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>`},
+    {label:"Auto-Join",href:"/settings/calendar",icon:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`},
+  ];
+  return `<div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <span style="color:white;font-size:13px;font-weight:600">MeetingMind</span>
+    </div>
+    <nav class="sidebar-nav">${nav.map(n=>`<div class="nav-item ${n.href===activeHref?'active':''}">${n.icon}<span>${n.label}</span></div>`).join('')}</nav>
+    <div class="sidebar-footer">
+      <div class="avatar">CH</div>
+      <div style="min-width:0">
+        <p style="font-size:12px;color:white;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Charan</p>
+        <p style="font-size:10px;color:#838383;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">charan@aixccelerate.com</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function cmdbar(title, actions='') {
+  return `<div class="cmdbar"><span class="cmdbar-title">${title}</span>${actions}</div>`;
+}
+
+function screen(title, url, content, showSidebar=false, sidebarActive='/meetings') {
+  const body = showSidebar
+    ? `<div class="screen-body">${sidebar(sidebarActive)}<div class="screen-content">${content}</div></div>`
+    : `<div style="height:480px;overflow-y:auto">${content}</div>`;
+  return `<div class="screen">
+    <div class="browser-bar">
+      <div style="display:flex;gap:6px"><div class="dot" style="background:#FC6058"></div><div class="dot" style="background:#FEC02F"></div><div class="dot" style="background:#2AC940"></div></div>
+      <div class="url-bar">localhost:3000${url}</div>
+      <span style="font-size:11px;color:#838383;font-weight:500">${title}</span>
+    </div>
+    ${body}
+  </div>`;
+}
+
+function sectionHeader(title, desc) {
+  return `<div style="margin-bottom:32px"><h2 style="font-size:24px;font-weight:600;color:#1A1A1A;margin:0">${title}</h2><p style="font-size:13px;color:#838383;margin:4px 0 0">${desc}</p></div>`;
+}
+
+// ── SECTION RENDERERS ────────────────────────────────────────────────────────
+
+function renderDesignTokens() {
+  const p = {50:"#F4F4FC",100:"#E3E3F3",200:"#C5C6E8",300:"#A7A8DC",400:"#8788CF",500:"#6264A7",600:"#4F5196",700:"#3D3E82",800:"#2D2E6B",900:"#1E1F52"};
+  const n = {50:"#F5F5F5",100:"#E8E8E8",200:"#D2D2D2",300:"#ABABAB",400:"#838383",500:"#5C5C5C",600:"#404040",700:"#333333",800:"#292929","850":"#201F1E",900:"#1A1A1A"};
+  return `
+  ${sectionHeader("Design Tokens v2","Teams-inspired. Purple primary, Cascadia Code mono, Fluent shadows.")}
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Primary — Teams Purple</p>
+    <div style="display:flex;gap:4px">${Object.entries(p).map(([k,v])=>`<div style="flex:1"><div style="height:40px;border-radius:2px;background:${v}"></div><p style="font-size:10px;color:#838383;margin:4px 0 0;text-align:center">${k}</p></div>`).join('')}</div>
+  </div>
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Neutral</p>
+    <div style="display:flex;gap:4px">${Object.entries(n).map(([k,v])=>`<div style="flex:1"><div style="height:40px;border-radius:2px;border:1px solid #E8E8E8;background:${v}"></div><p style="font-size:10px;color:#838383;margin:4px 0 0;text-align:center">${k}</p></div>`).join('')}</div>
+  </div>
+  <div style="display:flex;gap:24px;margin-bottom:32px">
+    ${[["#107C10","Success"],["#C19C00","Warning"],["#C50F1F","Error"]].map(([v,l])=>`<div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:2px;background:${v}"></div><div><p style="font-size:13px;font-weight:500;margin:0">${l}</p><p style="font-size:11px;color:#838383;margin:0">${v}</p></div></div>`).join('')}
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
+    <div>
+      <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Typography</p>
+      <div class="card" style="padding:20px">
+        <div style="padding-bottom:12px;border-bottom:1px solid #F5F5F5;margin-bottom:12px"><p style="font-size:20px;font-weight:600;color:#1A1A1A;margin:0">Page Title — 20px 600</p></div>
+        <div style="padding-bottom:12px;border-bottom:1px solid #F5F5F5;margin-bottom:12px"><p style="font-size:16px;font-weight:600;color:#1A1A1A;margin:0">Command Bar — 16px 600</p></div>
+        <div style="padding-bottom:12px;border-bottom:1px solid #F5F5F5;margin-bottom:12px"><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">Body Label — 13px 500</p></div>
+        <div style="padding-bottom:12px;border-bottom:1px solid #F5F5F5;margin-bottom:12px"><p style="font-size:13px;color:#404040;margin:0">Body — 13px 400</p></div>
+        <div style="padding-bottom:12px;border-bottom:1px solid #F5F5F5;margin-bottom:12px"><p style="font-size:11px;color:#838383;margin:0">Caption — 11px</p></div>
+        <div><blockquote class="verbatim" style="margin:0">"Verbatim quote from transcript."</blockquote></div>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Key Changes from v1</p>
+      <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        ${[
+          ["Primary","#4F52B2 → #6264A7 (Teams purple)"],
+          ["Sidebar active","Full fill → left 3px accent bar"],
+          ["Command bar","New — 48px white strip, sticky"],
+          ["Cards","Border only → border + subtle shadow"],
+          ["Mono font","JetBrains Mono → Cascadia Code"],
+          ["Sidebar bg","#292929 → #201F1E (Teams dark)"],
+          ["User avatar","New — shown in sidebar footer"],
+        ].map(([k,v])=>`<div style="display:flex;gap:8px;align-items:flex-start"><span style="font-size:11px;font-weight:600;color:#6264A7;min-width:80px">${k}</span><span style="font-size:11px;color:#5C5C5C">${v}</span></div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div>
+      <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Sidebar Nav States</p>
+      <div style="background:#201F1E;border-radius:4px;padding:8px;display:flex;flex-direction:column;gap:2px">
+        ${[["Default","color:#C8C6C4;background:transparent;border-left:3px solid transparent"],["Hover","color:white;background:rgba(255,255,255,0.08);border-left:3px solid transparent"],["Active","color:white;background:rgba(99,100,167,0.25);border-left:3px solid #6264A7;font-weight:500"]].map(([s,st])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;${st}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span style="font-size:12px">${s}</span></div>`).join('')}
+      </div>
+    </div>
+    <div>
+      <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Shadow Scale</p>
+      <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        ${[["none","0","No elevation — table rows"],["sm","0 1px 4px rgba(0,0,0,0.06)","Cards, panels"],["md","0 2px 8px rgba(0,0,0,0.10)","Dropdowns, tooltips"],["lg","0 4px 16px rgba(0,0,0,0.14)","Modals, dialogs"]].map(([k,v,d])=>`<div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:32px;background:white;border:1px solid #E8E8E8;border-radius:4px;flex-shrink:0;box-shadow:${v}"></div><div><p style="font-size:11px;font-weight:600;margin:0">${k}</p><p style="font-size:10px;color:#838383;margin:0">${d}</p></div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderUserFlow() {
+  const steps = [
+    {l:"Sign In",s:"Google OAuth",c:"#201F1E"},
+    {l:"Dashboard",s:"Stats + recents",c:"#4F5196"},
+    {l:"New Meeting",s:"Paste URL",c:"#6264A7"},
+    {l:"Bot Joins",s:"Live recording",c:"#C50F1F"},
+    {l:"Processing",s:"AI extraction",c:"#C19C00"},
+    {l:"Detail",s:"Summary + actions",c:"#6264A7"},
+    {l:"Track",s:"Mark done",c:"#107C10"},
+  ];
+  return `
+  ${sectionHeader("User Flow","Same primary path; Teams shell wraps every authenticated screen.")}
+  <div class="card" style="padding:32px">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      ${steps.map((s,i)=>`
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;border-radius:8px;background:${s.c};display:flex;align-items:center;justify-content:center;margin:0 auto">
+              <div style="width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.25)"></div>
+            </div>
+            <p style="font-size:11px;font-weight:500;color:#1A1A1A;margin:8px 0 0;width:72px;text-align:center">${s.l}</p>
+            <p style="font-size:10px;color:#838383;margin:2px 0 0;width:72px;text-align:center">${s.s}</p>
+          </div>
+          ${i<steps.length-1?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D2D2D2" stroke-width="2" style="flex-shrink:0;margin-bottom:24px"><polyline points="9 18 15 12 9 6"/></svg>':''}
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:28px;padding-top:20px;border-top:1px solid #F5F5F5">
+      <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Teams Shell Rules</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        ${[
+          ["Command bar","Every page has a sticky 48px white bar with title + primary action.","#F4F4FC","#3D3E82"],
+          ["Sidebar always visible","220px dark sidebar, never collapses on desktop.","#F4F4FC","#3D3E82"],
+          ["Left-bar active","Nav active state uses a 3px left border, not full fill.","#F4F4FC","#3D3E82"],
+        ].map(([f,n,bg,c])=>`<div style="background:${bg};border-radius:4px;padding:12px"><p style="font-size:11px;font-weight:600;color:${c};margin:0">${f}</p><p style="font-size:10px;color:${c};opacity:.7;margin:4px 0 0">${n}</p></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderSignIn() {
+  const mock = `<div style="height:100%;display:flex;align-items:center;justify-content:center;background:#201F1E">
+    <div style="background:white;padding:36px 32px;border-radius:8px;width:300px;box-shadow:0 4px 16px rgba(0,0,0,0.3)">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:44px;height:44px;background:#6264A7;border-radius:8px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h1 style="font-size:20px;font-weight:600;color:#1A1A1A;margin:0">MeetingMind</h1>
+        <p style="font-size:12px;color:#838383;margin:6px 0 0">Every commitment, tracked.</p>
+      </div>
+      <button style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;border:1px solid #E8E8E8;border-radius:4px;font-size:13px;font-weight:500;color:#333333;background:white;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <p style="font-size:11px;color:#ABABAB;text-align:center;margin-top:14px;line-height:1.5">By signing in you agree to our Terms of Service.</p>
+    </div>
+  </div>`;
+  return `
+  ${sectionHeader("Sign In","Same Google OAuth flow; darker Teams background.")}
+  <div style="max-width:420px">${screen("Sign In","",mock)}</div>`;
+}
+
+function renderDashboard() {
+  const content = `
+  ${cmdbar('Good morning, Charan 👋',`<button style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer">＋ New Meeting</button>`)}
+  <div class="page-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+      ${[["6","Meetings this week","#F4F4FC","#3D3E82"],["14","Open action items","#EFF6FF","#1D4ED8"],["3","Overdue","#FEF2F2","#DC2626"],["5","Completed today","#F0FDF4","#16A34A"]].map(([v,l,bg,c])=>`
+        <div class="card" style="padding:14px">
+          <div style="width:28px;height:28px;border-radius:4px;background:${bg};margin-bottom:10px;display:flex;align-items:center;justify-content:center"><div style="width:12px;height:12px;border-radius:2px;background:${c}"></div></div>
+          <p style="font-size:22px;font-weight:600;color:#1A1A1A;margin:0">${v}</p>
+          <p style="font-size:11px;color:#838383;margin:2px 0 0">${l}</p>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div style="padding:10px 14px;border-bottom:1px solid #F5F5F5;display:flex;justify-content:space-between;align-items:center">
+        <p style="font-size:13px;font-weight:600;color:#1A1A1A;margin:0">Recent Meetings</p>
+        <span style="font-size:12px;color:#6264A7;cursor:pointer">View all →</span>
+      </div>
+      ${[["Q2 Planning Sync","2h ago","completed","4 actions"],["Customer Call — Acme","Recording…","recording",""],["Team Retro","Processing","processing",""]].map(([t,time,s,extra])=>`
+      <div class="meeting-row">
+        <div class="meeting-row-bar" style="background:${s==='completed'?'#107C10':s==='recording'?'#C50F1F':'#C19C00'}"></div>
+        <div style="flex:1;padding:10px 0"><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">${t}</p><p style="font-size:11px;color:#838383;margin:2px 0 0">${time}</p></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${extra?`<span style="font-size:11px;color:#838383">${extra}</span>`:''}
+          ${badge(s, s==='completed'?'bg-green-50 text-green-700':s==='recording'?'bg-red-50 text-red-700':'bg-yellow-50 text-yellow-700')}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  return `${sectionHeader("Dashboard","Teams command bar with name greeting + stat cards.")}${screen("Dashboard","/meetings",content,true,"/meetings")}`;
+}
+
+function renderMeetingsList() {
+  const content = `
+  ${cmdbar('Meetings',`<button style="display:flex;align-items:center;gap:6px;padding:6px 14px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer">＋ New Meeting</button>`)}
+  <div class="page-body">
+    <div style="background:#F0EFF9;border:1px solid #C5C6E8;border-radius:4px;padding:10px 12px;margin-bottom:14px">
+      <p style="font-size:11px;font-weight:600;color:#3D3E82;display:flex;align-items:center;gap:6px;margin:0 0 8px">🔔 Upcoming — Auto-join on</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:white;border:1px solid #C5C6E8;border-radius:4px;padding:8px 12px">
+        <div><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">Weekly Stand-up</p><p style="font-size:11px;color:#838383;margin:2px 0 0">in 22 minutes · Google Meet</p></div>
+        ${badge("auto-join","bg-primary-100 text-primary-700")}
+      </div>
+    </div>
+    <div class="card">
+      ${[["Q2 Planning Sync","Today, 2:30 PM","completed"],["Customer Call — Acme","Recording now","recording"],["Team Retro","Processing…","processing"],["Investor Prep","Jun 5, 10:00 AM","scheduled"]].map(([t,time,s])=>`
+      <div class="meeting-row">
+        <div class="meeting-row-bar" style="background:${s==='completed'?'#107C10':s==='recording'?'#C50F1F':s==='processing'?'#C19C00':'#D2D2D2'}"></div>
+        <div style="flex:1;padding:11px 0"><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">${t}</p><p style="font-size:11px;color:#838383;margin:2px 0 0">${time}</p></div>
+        ${badge(s, s==='completed'?'bg-green-50 text-green-700':s==='recording'?'bg-red-50 text-red-700':s==='processing'?'bg-yellow-50 text-yellow-700':'bg-neutral-100 text-neutral-500')}
+      </div>`).join('')}
+    </div>
+  </div>`;
+  return `${sectionHeader("Meetings List","Left status bar on each row (Teams calendar style).")}${screen("Meetings","/meetings",content,true,"/meetings")}`;
+}
+
+function renderNewMeeting() {
+  const modalContent = `<div style="height:100%;background:rgba(32,31,30,0.75);display:flex;align-items:center;justify-content:center;padding:16px">
+    <div style="background:white;border-radius:6px;width:100%;max-width:400px;box-shadow:0 4px 16px rgba(0,0,0,0.2)">
+      <div style="padding:16px 20px;border-bottom:1px solid #F5F5F5;display:flex;align-items:center;justify-content:space-between">
+        <h2 style="font-size:15px;font-weight:600;color:#1A1A1A;margin:0">Start a new meeting</h2>
+        <span style="font-size:18px;color:#838383;cursor:pointer;line-height:1">×</span>
+      </div>
+      <div style="padding:20px">
+        <div style="margin-bottom:16px">
+          <label style="font-size:11px;font-weight:600;color:#333333;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Meeting URL <span style="color:#C50F1F">*</span></label>
+          <input value="https://meet.google.com/abc-defg-hij" readonly style="width:100%;border:1.5px solid #6264A7;border-radius:4px;padding:8px 12px;font-size:13px;outline:none;box-shadow:0 0 0 3px rgba(98,100,167,0.12);box-sizing:border-box"/>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+            <span style="font-size:10px;background:#EFF6FF;color:#1D4ED8;padding:1px 6px;border-radius:2px;font-weight:500">Google Meet</span>
+            <span style="font-size:11px;color:#838383">detected</span>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:11px;font-weight:600;color:#333333;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Meeting name</label>
+          <input value="Q3 Kickoff" readonly style="width:100%;border:1px solid #E8E8E8;border-radius:4px;padding:8px 12px;font-size:13px;outline:none;box-sizing:border-box"/>
+          <p style="font-size:11px;color:#838383;margin:4px 0 0">Optional — auto-filled from calendar if available.</p>
+        </div>
+        <div style="background:#F0EFF9;border:1px solid #C5C6E8;border-radius:4px;padding:10px 12px;display:flex;align-items:flex-start;gap:8px">
+          <div style="width:16px;height:16px;border-radius:50%;background:#6264A7;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <p style="font-size:12px;color:#3D3E82;margin:0">The bot joins as <strong>MeetingMind</strong> and is visible to all participants.</p>
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-top:1px solid #F5F5F5;display:flex;justify-content:flex-end;gap:8px">
+        <button style="padding:7px 16px;font-size:13px;color:#5C5C5C;border:1px solid #E8E8E8;border-radius:4px;background:white;cursor:pointer">Cancel</button>
+        <button style="padding:7px 16px;font-size:13px;color:white;background:#6264A7;border:none;border-radius:4px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Send Bot
+        </button>
+      </div>
+    </div>
+  </div>`;
+  return `
+  ${sectionHeader("New Meeting Modal","Platform auto-detection, consent note, Teams overlay style.")}
+  <div style="max-width:500px">${screen("New Meeting","",[modalContent].join(''))}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:24px">
+    ${[["Empty","Send Bot disabled; URL placeholder shown."],["Valid URL","Platform badge appears; button enables."],["Dispatched","Modal closes; row enters list as 'recording'."]].map(([s,d])=>`<div class="card" style="padding:14px"><p style="font-size:13px;font-weight:600;color:#1A1A1A;margin:0">${s}</p><p style="font-size:12px;color:#838383;margin:4px 0 0">${d}</p></div>`).join('')}
+  </div>`;
+}
+
+function renderMeetingDetail() {
+  const content = `
+  ${cmdbar('Q2 Planning Sync',`<div style="display:flex;gap:8px">${badge("completed","bg-green-50 text-green-700")}<button style="padding:5px 12px;font-size:12px;border:1px solid #E8E8E8;border-radius:4px;background:white;cursor:pointer;color:#5C5C5C">Push to Slack</button></div>`)}
+  <div class="page-body" style="max-width:640px">
+    <p style="font-size:11px;color:#838383;margin:0 0 14px">June 3, 2026 · 2:30 PM · 48 min</p>
+    <div class="card" style="padding:14px;margin-bottom:10px">
+      <h2 style="font-size:12px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px">Summary</h2>
+      <p style="font-size:13px;color:#404040;line-height:1.6;margin:0">The team reviewed Q2 OKR progress and identified three key risks to the June 30 milestone. It was agreed to pause the mobile feature and redirect engineering to the API stability track. Next steps include a stakeholder update by Friday and a revised timeline from the PM team.</p>
+    </div>
+    <div class="card" style="padding:14px;margin-bottom:10px">
+      <h2 style="font-size:12px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px">Action Items (3)</h2>
+      ${[{t:"Send revised Q2 timeline to stakeholders",o:"Charan",d:"Jun 7",p:"high",s:"open",q:"I'll have the updated timeline out by end of Friday."},{t:"Create API stability runbook",o:"Dev Team",d:"Jun 10",p:"critical",s:"in_progress",q:null},{t:"Reschedule mobile feature kickoff",o:"Sarah",d:null,p:"medium",s:"open",q:null}].map(item=>`
+      <div style="border:1px solid #F5F5F5;border-radius:4px;padding:10px 12px;margin-bottom:8px;border-left:3px solid ${item.p==='critical'?'#C50F1F':item.p==='high'?'#FB923C':'#6264A7'}">
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <p style="font-size:13px;color:#1A1A1A;flex:1;margin:0">${item.t}</p>
+          ${badge(item.s.replace('_',' '),item.s==='in_progress'?'bg-yellow-50 text-yellow-700':'bg-blue-50 text-blue-700')}
+        </div>
+        <div style="display:flex;gap:16px;font-size:11px;color:#838383;margin:5px 0 0">
+          <span>Owner: <span style="color:#404040">${item.o}</span></span>
+          ${item.d?`<span>Due: <span style="color:#404040">${item.d}</span></span>`:''}
+        </div>
+        ${item.q?`<blockquote class="verbatim" style="margin:6px 0 0">"${item.q}"</blockquote>`:''}
+      </div>`).join('')}
+    </div>
+    <div class="card" style="padding:14px">
+      <h2 style="font-size:12px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px">Decisions</h2>
+      ${["Pause mobile feature until Q3","Redirect 2 engineers to API stability","Friday stakeholder update is mandatory"].map(d=>`<div style="display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#333333;margin-bottom:6px"><span style="color:#107C10">✓</span>${d}</div>`).join('')}
+    </div>
+  </div>`;
+  return `
+  ${sectionHeader("Meeting Detail","Command bar holds title + status + push action. Action items use priority-coloured left border.")}
+  ${screen("Meeting Detail","/meetings/abc",content,true,"/meetings")}
+  <div style="margin-top:24px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Recording Banner</p>
+    <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:4px;padding:12px 16px;display:flex;align-items:center;gap:12px;max-width:560px;font-size:13px;color:#92400E">
+      <div style="position:relative;width:10px;height:10px;flex-shrink:0"><div class="animate-ping" style="position:absolute;width:10px;height:10px;border-radius:50%;background:#FCD34D;opacity:.75"></div><div style="position:relative;width:10px;height:10px;border-radius:50%;background:#F59E0B"></div></div>
+      Bot is recording the meeting… Transcript will be processed when the call ends.
+    </div>
+  </div>`;
+}
+
+function renderActionItems() {
+  const content = `
+  ${cmdbar('Action Items',`<span style="padding:4px 10px;background:#FEF2F2;color:#DC2626;font-size:12px;font-weight:500;border-radius:4px">⚠ 3 overdue</span>`)}
+  <div class="page-body">
+    <div style="display:flex;gap:2px;margin-bottom:14px;background:#F5F5F5;border-radius:4px;padding:3px;width:fit-content">
+      ${["All","Open","In Progress","Overdue","Done"].map((f,i)=>`<button style="padding:4px 12px;border-radius:3px;font-size:12px;font-weight:500;border:none;cursor:pointer;background:${i===0?'white':'transparent'};color:${i===0?'#1A1A1A':'#838383'};box-shadow:${i===0?'0 1px 3px rgba(0,0,0,0.08)':'none'}">${f}</button>`).join('')}
+    </div>
+    <div class="card">
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <thead><tr style="background:#F5F5F5;border-bottom:1px solid #E8E8E8">${["Task","Owner","Deadline","Status",""].map(h=>`<th style="text-align:left;padding:9px 14px;font-size:11px;font-weight:600;color:#5C5C5C;text-transform:uppercase;letter-spacing:.04em">${h}</th>`).join('')}</tr></thead>
+        <tbody>
+          ${[{t:"Send revised Q2 timeline",q:"I'll have the updated timeline out by end of Friday.",o:"Charan",d:"Jun 7",s:"open",ov:false},{t:"Create API runbook",q:null,o:"Dev Team",d:"May 31",s:"overdue",ov:true},{t:"Reschedule mobile kickoff",q:null,o:"Sarah",d:null,s:"done",ov:false}].map(item=>`
+          <tr style="border-bottom:1px solid #F5F5F5;background:${item.ov?'rgba(254,242,242,0.4)':'white'}">
+            <td style="padding:11px 14px">
+              <p style="margin:0;color:${item.s==='done'?'#ABABAB':'#1A1A1A'};${item.s==='done'?'text-decoration:line-through':''}">${item.t}</p>
+              ${item.q?`<blockquote class="verbatim" style="margin:5px 0 0">"${item.q}"</blockquote>`:''}
+            </td>
+            <td style="padding:11px 14px;color:#5C5C5C;font-size:12px">${item.o}</td>
+            <td style="padding:11px 14px;font-size:12px;color:${item.ov?'#C50F1F':'#838383'};font-weight:${item.ov?'600':'400'}">${item.d?`${item.ov?'⚠ ':''}${item.d}`:'—'}</td>
+            <td style="padding:11px 14px">${badge(item.s.replace('_',' '),item.s==='done'?'bg-green-50 text-green-700':item.s==='overdue'?'bg-red-50 text-red-700':'bg-blue-50 text-blue-700')}</td>
+            <td style="padding:11px 14px">${item.s!=='done'?`<button style="font-size:11px;padding:3px 8px;border:1px solid #E8E8E8;border-radius:4px;color:#838383;background:white;cursor:pointer;font-weight:500">Done</button>`:''}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+  return `${sectionHeader("Action Items","Command bar holds overdue alert. Table headers are small-caps.")}${screen("Action Items","/action-items",content,true,"/action-items")}`;
+}
+
+function renderTeam() {
+  const content = `
+  ${cmdbar('Team')}
+  <div class="page-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${[{n:"Charan",e:"charan@aixccelerate.com",open:4,ov:1,av:"CH"},{n:"Sarah Chen",e:"sarah@company.com",open:2,ov:0,av:"SC"},{n:"Dev Team",e:"dev@company.com",open:6,ov:2,av:"DT"},{n:"Priya Nair",e:"priya@company.com",open:3,ov:0,av:"PN"}].map(m=>`
+      <div class="card" style="padding:14px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="width:36px;height:36px;border-radius:50%;background:#E3E3F3;color:#3D3E82;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">${m.av}</div>
+          <div><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">${m.n}</p><p style="font-size:11px;color:#838383;margin:0">${m.e}</p></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;background:#F5F5F5;border-radius:4px;padding:8px;text-align:center"><p style="font-size:20px;font-weight:600;color:#1A1A1A;margin:0">${m.open}</p><p style="font-size:10px;color:#838383;margin:0">open</p></div>
+          <div style="flex:1;border-radius:4px;padding:8px;text-align:center;background:${m.ov>0?'#FEF2F2':'#F5F5F5'}"><p style="font-size:20px;font-weight:600;color:${m.ov>0?'#C50F1F':'#1A1A1A'};margin:0">${m.ov}</p><p style="font-size:10px;color:#838383;margin:0">overdue</p></div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  return `${sectionHeader("Team","Per-member cards with open/overdue counts.")}${screen("Team","/team",content,true,"/team")}`;
+}
+
+function renderIntegrations() {
+  const intgs = [
+    {k:"slack",l:"Slack",d:"Post digests to a channel.",i:"💬",c:true,en:true},
+    {k:"gmail",l:"Gmail",d:"Email summary to attendees.",i:"✉️",c:false,en:false},
+    {k:"linear",l:"Linear",d:"Create issues for action items.",i:"⚡",c:true,en:true},
+    {k:"jira",l:"Jira",d:"Create Jira tasks.",i:"🎯",c:false,en:false},
+    {k:"hubspot",l:"HubSpot",d:"Attach notes to contacts.",i:"🧡",c:false,en:false},
+    {k:"salesforce",l:"Salesforce",d:"Create tasks in Salesforce.",i:"☁️",c:false,en:false},
+  ];
+  const content = `
+  ${cmdbar('Integrations')}
+  <div class="page-body">
+    ${intgs.map(intg=>`
+    <div class="card" style="padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:14px">
+      <span style="font-size:20px;width:32px;text-align:center;flex-shrink:0">${intg.i}</span>
+      <div style="flex:1"><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">${intg.l}</p><p style="font-size:12px;color:#838383;margin:2px 0 0">${intg.d}</p></div>
+      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+        ${intg.c?`<span style="font-size:11px;color:#107C10;font-weight:600">● Connected</span>`:`<button style="font-size:11px;padding:4px 10px;border:1px solid #E8E8E8;border-radius:4px;color:#333333;background:white;cursor:pointer">Connect</button>`}
+        <div class="toggle" style="background:${intg.en&&intg.c?'#6264A7':'#D2D2D2'};opacity:${intg.c?1:0.4}">
+          <div class="toggle-thumb" style="transform:translateX(${intg.en&&intg.c?18:2}px)"></div>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  return `${sectionHeader("Integrations","Command bar, Fluent card rows.")}${screen("Integrations","/settings",content,true,"/settings")}`;
+}
+
+function renderCalendar() {
+  const content = `
+  ${cmdbar('Calendar & Auto-Join')}
+  <div class="page-body" style="max-width:560px">
+    <div class="card" style="padding:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:36px;height:36px;background:#EFF6FF;border-radius:4px;display:flex;align-items:center;justify-content:center">📅</div>
+        <div><p style="font-size:13px;font-weight:500;color:#1A1A1A;margin:0">Google Calendar</p><p style="font-size:11px;color:#107C10;font-weight:500;margin:0">● Connected · charan@aixccelerate.com</p></div>
+      </div>
+      <button style="font-size:11px;color:#838383;border:none;background:none;cursor:pointer">Disconnect</button>
+    </div>
+    <div class="card" style="padding:14px;margin-bottom:12px">
+      <p style="font-size:12px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px">Auto-join rules</p>
+      ${[["Join all meetings with a video link",true],["Only join meetings I organise",false],["Skip 1:1 meetings",true],["Skip meetings marked Personal",true]].map(([r,c])=>`
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:16px;height:16px;border-radius:3px;border:1.5px solid ${c?'#6264A7':'#D2D2D2'};background:${c?'#6264A7':'white'};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+          ${c?`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>`:''}
+        </div>
+        <p style="font-size:13px;color:#333333;margin:0">${r}</p>
+      </div>`).join('')}
+    </div>
+    <div class="card" style="padding:14px">
+      <p style="font-size:12px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px">Upcoming</p>
+      ${[{t:"Weekly Stand-up",time:"Today, 4:00 PM",join:true},{t:"Q3 Roadmap Review",time:"Jun 5, 10:00 AM",join:true},{t:"Lunch with Alex",time:"Jun 5, 1:00 PM",join:false}].map(m=>`
+      <div class="meeting-row" style="border-radius:4px">
+        <div class="meeting-row-bar" style="background:${m.join?'#107C10':'#D2D2D2'}"></div>
+        <div style="flex:1;padding:8px 0"><p style="font-size:13px;color:#1A1A1A;margin:0">${m.t}</p><p style="font-size:11px;color:#838383;margin:0">${m.time}</p></div>
+        ${badge(m.join?"will join":"skipped",m.join?"bg-green-50 text-green-700":"bg-neutral-100 text-neutral-500")}
+      </div>`).join('')}
+    </div>
+  </div>`;
+  return `${sectionHeader("Calendar / Auto-Join","Command bar, rules panel, upcoming preview.")}${screen("Auto-Join","/settings/calendar",content,true,"/settings/calendar")}`;
+}
+
+function renderComponents() {
+  return `
+  ${sectionHeader("Component Library","Updated for Teams-inspired styles.")}
+
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Buttons</p>
+    <div class="card" style="padding:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+      <button style="padding:7px 16px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer">Primary</button>
+      <button style="padding:7px 16px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:13px;font-weight:500;opacity:.4;cursor:not-allowed">Disabled</button>
+      <button style="padding:7px 16px;background:white;color:#333333;border:1px solid #E8E8E8;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer">Secondary</button>
+      <button style="padding:7px 16px;background:transparent;color:#5C5C5C;border:none;font-size:13px;cursor:pointer">Ghost</button>
+      <button style="padding:7px 16px;background:white;color:#C50F1F;border:1px solid #FECACA;border-radius:4px;font-size:13px;cursor:pointer">Destructive</button>
+      <button style="padding:6px 10px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:11px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px">＋ Small</button>
+      <button style="padding:7px 16px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px">
+        <div class="animate-spin" style="width:13px;height:13px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);border-top-color:white"></div>Loading…
+      </button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Status Badges</p>
+    <div class="card" style="padding:20px;display:flex;flex-wrap:wrap;gap:8px">
+      ${[["scheduled","bg-neutral-100 text-neutral-500"],["recording","bg-red-50 text-red-700"],["processing","bg-yellow-50 text-yellow-700"],["completed","bg-green-50 text-green-700"],["failed","bg-red-100 text-red-800"],["open","bg-blue-50 text-blue-700"],["in progress","bg-yellow-50 text-yellow-700"],["overdue","bg-red-50 text-red-700"],["done","bg-green-50 text-green-700"],["auto-join","bg-primary-100 text-primary-700"]].map(([l,c])=>badge(l,c)).join('')}
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Action Item Priority — Left Border</p>
+    <div class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px">
+      ${[["critical","#C50F1F","Blocking / urgent"],["high","#FB923C","Important this week"],["medium","#6264A7","Default"],["low","#D2D2D2","Nice to have"]].map(([l,c,d])=>`
+      <div style="border:1px solid #F5F5F5;border-left:3px solid ${c};border-radius:2px 4px 4px 2px;padding:8px 12px;background:white">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;font-weight:500;color:#1A1A1A;text-transform:capitalize">${l}</span>
+          <span style="font-size:11px;color:#838383">— ${d}</span>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Form Inputs</p>
+    <div class="card" style="padding:20px;max-width:360px;display:flex;flex-direction:column;gap:12px">
+      <input readonly value="Default input" style="border:1px solid #E8E8E8;border-radius:4px;padding:7px 12px;font-size:13px;outline:none;width:100%"/>
+      <input readonly value="Focused input" style="border:1.5px solid #6264A7;border-radius:4px;padding:7px 12px;font-size:13px;outline:none;box-shadow:0 0 0 3px rgba(98,100,167,0.12);width:100%"/>
+      <div>
+        <input readonly value="Invalid URL" style="border:1.5px solid #C50F1F;border-radius:4px;padding:7px 12px;font-size:13px;outline:none;box-shadow:0 0 0 3px rgba(197,15,31,0.1);width:100%;box-sizing:border-box"/>
+        <p style="font-size:11px;color:#C50F1F;margin:4px 0 0">Please enter a valid meeting URL.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px">
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Verbatim Quote</p>
+    <div class="card" style="padding:20px;max-width:560px">
+      <blockquote class="verbatim" style="margin:0">"I'll have the updated timeline out by end of Friday, no exceptions."</blockquote>
+      <p style="font-size:11px;color:#838383;margin:8px 0 0">Cascadia Code · 11px · border-l #6264A7 · bg primary-50</p>
+    </div>
+  </div>
+
+  <div>
+    <p style="font-size:11px;font-weight:600;color:#838383;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Empty State</p>
+    <div class="card" style="padding:48px;text-align:center;max-width:300px">
+      <div style="font-size:32px;margin-bottom:10px;opacity:.2">📅</div>
+      <p style="font-size:13px;font-weight:500;color:#5C5C5C;margin:0">No meetings yet</p>
+      <p style="font-size:12px;color:#838383;margin:4px 0 0">Join or create a meeting to get started.</p>
+      <button style="margin-top:16px;padding:6px 14px;background:#6264A7;color:white;border:none;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer">New Meeting</button>
+    </div>
+  </div>`;
+}
+
+const RENDERERS = {
+  "Design Tokens": renderDesignTokens,
+  "User Flow": renderUserFlow,
+  "Sign In": renderSignIn,
+  "Dashboard": renderDashboard,
+  "Meetings List": renderMeetingsList,
+  "New Meeting Modal": renderNewMeeting,
+  "Meeting Detail": renderMeetingDetail,
+  "Action Items": renderActionItems,
+  "Team": renderTeam,
+  "Integrations": renderIntegrations,
+  "Calendar / Auto-Join": renderCalendar,
+  "Components": renderComponents,
+};
+
+function render() {
+  const tabs = document.getElementById('nav-tabs');
+  tabs.innerHTML = SECTIONS.map(s =>
+    `<button onclick="navigate('${s}')" style="padding:4px 10px;border-radius:4px;border:none;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;background:${active===s?'#6264A7':'transparent'};color:${active===s?'white':'#9CA3AF'};transition:all 150ms">${s}</button>`
+  ).join('');
+  document.getElementById('content').innerHTML = RENDERERS[active]();
+}
+
+function navigate(section) {
+  active = section;
+  render();
+  window.scrollTo(0, 0);
+}
+
+render();
+</script>
+</body>
+</html>

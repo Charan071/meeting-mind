@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 240px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-neutral-50 text-neutral-900;
+  }
+
+  /* Verbatim quote style */
+  .verbatim-quote {
+    @apply font-mono text-sm border-l-[3px] border-primary-600 pl-3 py-1 text-neutral-700 bg-neutral-100;
+  }
+}
+
+@layer utilities {
+  .sidebar {
+    width: var(--sidebar-width);
+  }
+}
