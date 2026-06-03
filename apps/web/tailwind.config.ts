@@ -8,15 +8,15 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          50:  "#EEEEF8",
-          100: "#D4D5EF",
-          200: "#ABABDF",
-          300: "#8182CF",
-          400: "#6364BF",
-          500: "#4F52B2",
-          600: "#4547A0",
-          700: "#393B8B",
-          800: "#2D2F75",
+          50:  "#F4F4FC",
+          100: "#E3E3F3",
+          200: "#C5C6E8",
+          300: "#A7A8DC",
+          400: "#8788CF",
+          500: "#6264A7",
+          600: "#4F5196",
+          700: "#3D3E82",
+          800: "#2D2E6B",
           900: "#1E1F52",
         },
         neutral: {
@@ -29,6 +29,7 @@ const config: Config = {
           600: "#404040",
           700: "#333333",
           800: "#292929",
+          850: "#201F1E",
           900: "#1A1A1A",
         },
         success: "#107C10",
@@ -37,7 +38,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["Segoe UI", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["JetBrains Mono", "Consolas", "monospace"],
+        mono: ["Cascadia Code", "Consolas", "monospace"],
       },
       borderRadius: {
         sm: "2px",
